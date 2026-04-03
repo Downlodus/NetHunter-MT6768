@@ -1,0 +1,77 @@
+name: Build NetHunter Kernel MT6768
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout kernel source
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Setup build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git bc bison flex libssl-dev make libc6-dev libncurses5-dev \
+            crossbuild-essential-arm64 python3 python2 zip
+
+      - name: Setup git config
+        run: |
+          git config --global user.email "claude@titan.ua"
+          git config --global user.name "NetHunter Builder"
+
+      - name: Download Clang toolchain
+        run: |
+          mkdir -p $HOME/toolchains
+          git clone --depth=1 https://github.com/kdrag0n/proton-clang \
+            $HOME/toolchains/proton-clang
+
+      - name: Build kernel
+        run: |
+          export PATH="$HOME/toolchains/proton-clang/bin:$PATH"
+          export ARCH=arm64
+          export SUBARCH=arm64
+          export CLANG_TRIPLE=aarch64-linux-gnu-
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+          export CC=clang
+          export LD=ld.lld
+          export AR=llvm-ar
+          export NM=llvm-nm
+          export OBJCOPY=llvm-objcopy
+          export OBJDUMP=llvm-objdump
+          export STRIP=llvm-strip
+
+          # Merge fragment config
+          make O=out neternels_defconfig
+          scripts/kconfig/merge_config.sh -m -O out \
+            out/.config arch/arm64/configs/xiaomi/lancelot.config
+
+          # Build
+          make O=out -j$(nproc --all)
+
+      - name: Package with AnyKernel3
+        run: |
+          git clone --depth=1 https://github.com/osm0sis/AnyKernel3 AnyKernel3
+          cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/ 2>/dev/null || \
+          cp out/arch/arm64/boot/Image.gz AnyKernel3/ 2>/dev/null || \
+          cp out/arch/arm64/boot/Image AnyKernel3/
+          
+          cd AnyKernel3
+          # Настройки для lancelot/galahad
+          sed -i 's/do.devicecheck=1/do.devicecheck=0/g' anykernel.sh
+          
+          zip -r9 ../NetHunter-MT6768-lancelot-galahad-$(date +%Y%m%d).zip * \
+            -x .git README.md *placeholder
+
+      - name: Upload kernel zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: NetHunter-MT6768-lancelot-galahad
+          path: NetHunter-MT6768-lancelot-galahad-*.zip
+          retention-days: 7
