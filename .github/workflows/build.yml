@@ -53,7 +53,7 @@ jobs:
             out/.config arch/arm64/configs/xiaomi/lancelot.config
 
           # Build
-          make O=out -j$(nproc --all)
+          make O=out -j$(nproc --all) KCFLAGS="-Wno-error=inline"
 
       - name: Package with AnyKernel3
         run: |
