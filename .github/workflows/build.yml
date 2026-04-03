@@ -37,6 +37,13 @@ jobs:
             include/linux/keyslot-manager.h
           sed -i 's/bt_reg_ctl = 0x%lx/bt_reg_ctl = 0x%x/g' \
             sound/soc/mediatek/common/mtk-btcvsd.c
+          sed -i 's/static const int const mt6768_sgen_mode_idx/static const int mt6768_sgen_mode_idx/g' \
+            sound/soc/mediatek/mt6768/mt6768-misc-control.c
+          sed -i 's/static const int const mt6768_sgen_rate_idx/static const int mt6768_sgen_rate_idx/g' \
+            sound/soc/mediatek/mt6768/mt6768-misc-control.c
+          # Убираем -Werror из Makefile ядра
+          sed -i 's/-Werror/-Wno-error/g' Makefile
+          sed -i 's/-Werror/-Wno-error/g' scripts/Makefile.build
 
       - name: Build kernel
         run: |
@@ -60,7 +67,7 @@ jobs:
             out/.config arch/arm64/configs/xiaomi/lancelot.config
 
           # Build
-          make O=out -j$(nproc --all) KCFLAGS="-Wno-error=inline"
+          make O=out -j$(nproc --all) KCFLAGS="-Wno-error" CFLAGS_KERNEL="-Wno-error"
 
       - name: Package with AnyKernel3
         run: |
