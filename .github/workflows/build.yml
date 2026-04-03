@@ -9,7 +9,7 @@ jobs:
     
     steps:
       - name: Checkout kernel source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -70,7 +70,7 @@ jobs:
             -x .git README.md *placeholder
 
       - name: Upload kernel zip
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: NetHunter-MT6768-lancelot-galahad
           path: NetHunter-MT6768-lancelot-galahad-*.zip
