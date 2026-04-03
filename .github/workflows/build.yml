@@ -22,7 +22,7 @@ jobs:
 
       - name: Setup git config
         run: |
-          git config --global user.email "claude@titan.ua"
+          git config --global user.email "II@titan.ua"
           git config --global user.name "NetHunter Builder"
 
       - name: Download Clang toolchain
