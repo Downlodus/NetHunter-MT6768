@@ -65,6 +65,11 @@ jobs:
           make O=out neternels_defconfig
           scripts/kconfig/merge_config.sh -m -O out \
             out/.config arch/arm64/configs/xiaomi/lancelot.config
+          
+          # Отключаем stack protector strong
+          scripts/config --file out/.config \
+            --disable CONFIG_CC_STACKPROTECTOR_STRONG \
+            --enable CONFIG_CC_STACKPROTECTOR_REGULAR
 
           # Build
           make O=out -j$(nproc --all) KCFLAGS="-Wno-error" CFLAGS_KERNEL="-Wno-error"
