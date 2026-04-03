@@ -35,6 +35,8 @@ jobs:
         run: |
           sed -i 's/inline void ksm_flock/void ksm_flock/g' \
             include/linux/keyslot-manager.h
+          sed -i 's/bt_reg_ctl = 0x%lx/bt_reg_ctl = 0x%x/g' \
+            sound/soc/mediatek/common/mtk-btcvsd.c
 
       - name: Build kernel
         run: |
