@@ -62,7 +62,7 @@ jobs:
           export STRIP=llvm-strip
 
           # Merge fragment config
-          make O=out neternels_defconfig
+          make O=out CC=clang neternels_defconfig
           scripts/kconfig/merge_config.sh -m -O out \
             out/.config arch/arm64/configs/xiaomi/lancelot.config
           
@@ -73,7 +73,11 @@ jobs:
             --enable CONFIG_CC_STACKPROTECTOR_NONE
 
           # Build
-          make O=out -j$(nproc --all) KCFLAGS="-Wno-error" CFLAGS_KERNEL="-Wno-error"
+          make O=out CC=clang \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+            LD=ld.lld AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump \
+            -j$(nproc --all) KCFLAGS="-Wno-error" CFLAGS_KERNEL="-Wno-error"
 
       - name: Package with AnyKernel3
         run: |
