@@ -66,10 +66,11 @@ jobs:
           scripts/kconfig/merge_config.sh -m -O out \
             out/.config arch/arm64/configs/xiaomi/lancelot.config
           
-          # Отключаем stack protector strong
+          # Отключаем stack protector полностью для совместимости с clang
           scripts/config --file out/.config \
             --disable CONFIG_CC_STACKPROTECTOR_STRONG \
-            --enable CONFIG_CC_STACKPROTECTOR_REGULAR
+            --disable CONFIG_CC_STACKPROTECTOR_REGULAR \
+            --enable CONFIG_CC_STACKPROTECTOR_NONE
 
           # Build
           make O=out -j$(nproc --all) KCFLAGS="-Wno-error" CFLAGS_KERNEL="-Wno-error"
