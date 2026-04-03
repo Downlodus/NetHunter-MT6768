@@ -31,6 +31,11 @@ jobs:
           git clone --depth=1 https://github.com/kdrag0n/proton-clang \
             $HOME/toolchains/proton-clang
 
+      - name: Fix keyslot-manager inline issue
+        run: |
+          sed -i 's/inline void ksm_flock/void ksm_flock/g' \
+            include/linux/keyslot-manager.h
+
       - name: Build kernel
         run: |
           export PATH="$HOME/toolchains/proton-clang/bin:$PATH"
